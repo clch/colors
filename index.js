@@ -1,6 +1,5 @@
 var http = require('http'),
 	express = require('express'),
-	//p5 = require('p5'),
 	hogan = require('hogan.js'),
 	engines = require('consolidate');
 
@@ -10,23 +9,37 @@ var io = require('socket.io').listen(server);
 
 app.use(express.static('.'));
 
+var demoId;
+var userNum = -1;
+
 app.engine('html', engines.hogan);
 app.set('views', __dirname);
 app.set('view engine', 'html'); 
 
-app.get('/', function(req, res){
+app.get('/demo', function(req, res){
 	res.render('demo');
 });
 
-app.get('/user', function(req, res){
+// app.get('/', function(req, res){
+// 	userNum++;
+// 	res.render('user', {num: userNum});
+// });
+
+app.get('/', function(req, res){
 	res.render('user');
-})
+});
 
 // io.on('connection', function(socket){
-// 	socket.on('join', function())
+// 	socket.on('demo', function(){
+// 		demoId = socket.id;
+// 	});
+
+// 	socket.on('move', function(num, x, y){
+// 		io.to(demoId).emit('move', num, x, y);
+// 	});
 // });
 
 
-
-
-app.listen(8080);
+app.listen(8080, function(){
+  console.log('listening on port 8080');
+});
