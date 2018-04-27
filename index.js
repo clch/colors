@@ -7,13 +7,13 @@ var app = express();
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
 
-app.use(express.static('.'));
+app.use(express.static('templates'));
 
 var demoId;
 var userNum = -1;
 
 app.engine('html', engines.hogan);
-app.set('views', __dirname);
+app.set('views', __dirname + '/templates');
 app.set('view engine', 'html'); 
 
 app.get('/demo', function(req, res){
@@ -40,6 +40,6 @@ io.on('connection', function(socket){
 });
 
 
-app.listen(8080, function(){
+server.listen(8080, function(){
   console.log('listening on port 8080');
 });
