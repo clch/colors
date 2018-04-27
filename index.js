@@ -20,24 +20,24 @@ app.get('/demo', function(req, res){
 	res.render('demo');
 });
 
-// app.get('/', function(req, res){
-// 	userNum++;
-// 	res.render('user', {num: userNum});
-// });
-
 app.get('/', function(req, res){
-	res.render('user');
+	userNum++;
+	res.render('user', {num: userNum});
 });
 
-// io.on('connection', function(socket){
-// 	socket.on('demo', function(){
-// 		demoId = socket.id;
-// 	});
-
-// 	socket.on('move', function(num, x, y){
-// 		io.to(demoId).emit('move', num, x, y);
-// 	});
+// app.get('/', function(req, res){
+// 	res.render('user');
 // });
+
+io.on('connection', function(socket){
+	socket.on('demo', function(){
+		demoId = socket.id;
+	});
+
+	socket.on('move', function(num, x, y){
+		io.to(demoId).emit('move', num, x, y);
+	});
+});
 
 
 app.listen(8080, function(){

@@ -1,15 +1,15 @@
-// var num = document.querySelector('meta[name=' + num + ']').content;
-// socket.emit('move', num, 0, 0);
+var socket = io();
 
-// var socket = io();
-// socket.on('join', function(){
+var num = document.querySelector("meta[name=num]").content;
+socket.emit('move', num, 0, 0);
 
-// });
+socket.on('join', function(){
 
+});
 
-// function mousePressed() {
-// 	socket.emit('move', num, mouseX, mouseY);
-// }
+function mousePressed() {
+	socket.emit('move', num, mouseX, mouseY);
+}
 
 function setup() {
 	createCanvas(windowWidth,windowHeight);
