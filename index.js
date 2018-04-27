@@ -9,12 +9,13 @@ var io = require('socket.io').listen(server);
 
 app.use(express.static('templates'));
 
-var demoId;
-var userNum = -1;
 
 app.engine('html', engines.hogan);
 app.set('views', __dirname + '/templates');
 app.set('view engine', 'html'); 
+
+var demoId;
+var userNum = -1;
 
 app.get('/demo', function(req, res){
 	res.render('demo');
@@ -22,12 +23,12 @@ app.get('/demo', function(req, res){
 
 app.get('/', function(req, res){
 	userNum++;
-	res.render('user', {num: userNum});
+	var c = [0, 0, 0];
+	for (var i = 0; i < 3; i++) {
+		c[i] = Math.floor(Math.random() * 230 + 25);
+	}
+	res.render('user', {num: userNum, R: c[0], G: c[1], B: c[2]});
 });
-
-// app.get('/', function(req, res){
-// 	res.render('user');
-// });
 
 io.on('connection', function(socket){
 	socket.on('demo', function(){
@@ -38,7 +39,6 @@ io.on('connection', function(socket){
 		io.to(demoId).emit('move', num, x, y);
 	});
 });
-
 
 server.listen(8080, function(){
   console.log('listening on port 8080');
