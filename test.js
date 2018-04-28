@@ -15,8 +15,6 @@ app.set('views', __dirname + '/templates');
 app.set('view engine', 'html'); 
 
 var demoId;
-var userNum = -1;
-var idMap = new Map();
 var locMap = new Map();
 var initColorMap = new Map();
 
@@ -25,14 +23,11 @@ app.get('/demo', function(req, res){
 });
 
 app.get('/', function(req, res){
-	userNum++;
-	res.render('user', {num: userNum});
+	res.render('usertest');
 });
 
 io.on('connection', function(socket){
 	socket.on('join', function(num){
-		idMap.set(num, socket.id);
-		socket.num = num;
 		var c = [0, 0, 0];
 		for (var i = 0; i < 3; i++) {
 			c[i] = Math.floor(Math.random() * 230 + 25);
@@ -40,7 +35,7 @@ io.on('connection', function(socket){
 		var pos = {x: 0, y: 0};
 		locMap.set(num, pos);
 		initColorMap.set(num, c);
-		socket.emit('color', c[0], c[1], c[2]);
+		socket.emit('color', num, c[0], c[1], c[2]);
 		io.to(demoId).emit('color', num, c[0], c[1], c[2]);	
 	});
 
@@ -66,30 +61,19 @@ io.on('connection', function(socket){
 						for (var i = 0; i < 3; i++) {
 							c[i] -= cDiff[i];
 							c2[i] += cDiff[i];
-							// if (c[i] < 0) {
-							// 	c[i] = 0;
-							// } else if (c[i] > 255) {
-							// 	c[i] = 255;
-							// }
-							// if (c2[i] < 0) {
-							// 	c2[i] = 0;
-							// } else if (c2[i] > 255) {
-							// 	c2[i] = 255;
-							// }
 						}
-						io.to(idMap.get(k)).emit('color', c2[0], c2[1], c2[2]);	
+						socket.emit('color', k, c2[0], c2[1], c2[2]);	
 						io.to(demoId).emit('color', k, c2[0], c2[1], c2[2]);
 					}
 
 				}
 			}
-			socket.emit('color', c[0], c[1], c[2]);	
+			socket.emit('color', num, c[0], c[1], c[2]);	
 			io.to(demoId).emit('color', num, c[0], c[1], c[2]);	
 		}
 	});
 
 	socket.on('disconnect', function(){
-		idMap.delete(socket.num);
 		locMap.delete(socket.num);
 		initColorMap.delete(socket.num);
 		io.to(demoId).emit('disconnect', socket.num);
