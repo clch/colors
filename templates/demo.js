@@ -7,6 +7,10 @@ socket.on('move', function(num, x, y){
 	locMap.set(num, {x, y});
 });
 
+socket.on('disconnect', function(num){
+	locMap.delete(num);
+})
+
 
 function setup() {
 	createCanvas(windowWidth,windowHeight);
