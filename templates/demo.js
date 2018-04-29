@@ -2,48 +2,62 @@ var socket = io();
 socket.emit('demo');
 
 var locMap = new Map();
-var colorMap = new Map();
+var initColorMap = new Map();
+// var colorMap = new Map();
+
+socket.on('join', function(num){
+	var pos = {x: 0, y: 0};
+	locMap.set(num, pos);
+	var c = [0, 0, 0];
+	for (var i = 0; i < 3; i++) {
+		c[i] = Math.floor(Math.random() * 230 + 25);
+	}
+	initColorMap.set(num, c);
+	// colorMap.set(num, c);
+});
 
 socket.on('move', function(num, x, y){
 	locMap.set(num, {x, y});
 });
 
-socket.on('disconnect', function(num){
-	locMap.delete(num);
-});
-
-socket.on('color', function(num, r, g, b){
-	colorMap.set(num, [r, g, b]);
-});
-
 function setup() {
 	createCanvas(windowWidth,windowHeight);
-	
 }
 
 function draw() {
 	background(0);
-	for (var k of colorMap.keys()) {
-		if (locMap.get(k) != null) {
-			noStroke();
-			var v = locMap.get(k);
-			var c = colorMap.get(k);
-			fill(c[0], c[1], c[2]);
-			ellipse(v.x, v.y, 80, 80);
-			for (var j of colorMap.keys()) {
-				stroke(155);
-				if (k > j && locMap.get(j) != null) {
-					var v2 = locMap.get(j);
-					var d = kdist(v, v2);
-					console.log(d);
-					if (d < 300) {
-						strokeWeight(d/50);
-						line(v.x, v.y, v2.x, v2.y);
-					}
+	console.log(initColorMap);
+	for (var i of initColorMap.keys()) {
+		var vi = locMap.get(i);
+		var ci = initColorMap.get(i).slice();
+		for (var j of initColorMap.keys()) {
+			// calculate color
+			var vj = locMap.get(j);
+			var cj = initColorMap.get(j);
+			var d = kdist(vi, vj);
+			var cDiff = colorDiff(ci, cj, d/30);
+			for (var k = 0; k < 3; k++) {
+				ci[k] -= cDiff[k];
+			}
+			// draw lines
+			stroke(155);
+			if (i > j) {
+				if (d < 300) {
+					strokeWeight(d/50);
+					line(vi.x, vi.y, vj.x, vj.y);
 				}
 			}
 		}
+		// colorMap.set(i, ci);
+		fill(ci[0], ci[1], ci[2]);
+		socket.emit('color', i, ci[0], ci[1], ci[2]);
+		noStroke();
+		ellipse(vi.x, vi.y, 80, 80);
 	}
+}
+
+function colorDiff(c1, c2, d) {
+	return [(c1[0] - c2[0])/d, (c1[1] - c2[1])/d, (c1[2] - c2[2])/d];
 }
 
 function kdist(v1, v2) {

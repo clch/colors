@@ -1,44 +1,49 @@
 var socket = io();
+socket.emit('user');
 
-var num = document.querySelector("meta[name=num]").content;
-var R = 0, G = 0, B = 0;
-var c;
-var x = 0, y = 0;
-// var xspeed = 1; yspeed = 1;
+var num = 20;
+var R = [], G = [], B = [];
+var c = [];
+var x = [], y = [];
+var xspeed = []; yspeed = [];
 
-socket.emit('join', num);
-
-socket.on('color', function(r, g, b){
-	R = r;
-	G = g;
-	B = b;
+socket.on('color', function(i, r, g, b){
+	R[i] = r;
+	G[i] = g;
+	B[i] = b;
 });
 
 function setup() {
 	createCanvas(windowWidth,windowHeight);
-	// x = Math.random() * windowWidth;
-	// y = Math.random() * windowHeight;
+	for (var i = 0; i < num; i++) {
+		socket.emit('join', i);
+		x[i] = Math.random() * windowWidth;
+		y[i] = Math.random() * windowHeight;
+		xspeed[i] = Math.random() + 1;
+		yspeed[i] = Math.random() + 1;
+		R[i] = 0;
+		G[i] = 0;
+		B[i] = 0;
+	}
+	noStroke();
 }
 
 function draw() {
 	background(0);
-	c = color(R, G, B);
-	fill(c);
-	noStroke();
-	ellipse(x, y, 80, 80);
-	// x+=xspeed;
-	// y+=yspeed;
-	// if (x > windowWidth || x < 0) {
-	// 	xspeed *= -1;
-	// }
-	// if (y > windowHeight || y < 0) {
-	// 	yspeed *= -1;
-	// }
-	// socket.emit('move', num, x, y);
-}
-
-function mousePressed() {
-	x = mouseX;
-	y = mouseY;
-	socket.emit('move', num, x, y);
+	for (var i = 0; i < num; i++) {
+		// if (R[i] != null &&  G[i] != null & B[i] != null) {
+			c[i] = color(R[i], G[i], B[i]);
+			fill(c[i]);
+			x[i] += xspeed[i];
+			y[i] += yspeed[i];
+			if (x[i] > windowWidth || x[i] < 0) {
+				xspeed[i] *= -1;
+			}
+			if (y[i] > windowHeight || y[i] < 0) {
+				yspeed[i] *= -1;
+			}
+			ellipse(x[i], y[i], 80, 80);
+			socket.emit('move', i, x[i], y[i]);
+		// }
+	}
 }
