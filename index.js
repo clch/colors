@@ -32,10 +32,10 @@ io.on('connection', function(socket){
 		demoId = socket.id;
 	});
 
-	socket.on('join', function(num){
+	socket.on('join', function(num, size){
 		socket.num = num;
 		userMap.set(num, socket.id);
-		io.to(demoId).emit('join', num);
+		io.to(demoId).emit('join', num, size);
 	});
 
 	socket.on('move', function(num, x, y){
