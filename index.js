@@ -14,15 +14,17 @@ app.engine('html', engines.hogan);
 app.set('views', __dirname + '/templates');
 app.set('view engine', 'html'); 
 
-var demoId, userId;
-var locMap = new Map();
+var demoId;
+var userMap = new Map();
+var userNum = -1;
 
 app.get('/demo', function(req, res){
 	res.render('demo');
 });
 
 app.get('/', function(req, res){
-	res.render('user');
+	userNum++;
+	res.render('user', {num: userNum});
 });
 
 io.on('connection', function(socket){
@@ -30,11 +32,9 @@ io.on('connection', function(socket){
 		demoId = socket.id;
 	});
 
-	socket.on('user', function(){
-		userId = socket.id;
-	});
-
 	socket.on('join', function(num){
+		socket.num = num;
+		userMap.set(num, socket.id);
 		io.to(demoId).emit('join', num);
 	});
 
@@ -43,7 +43,13 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('color', function(num, r, g, b){
-		io.to(userId).emit('color', num, r, g, b);
+		var userId = userMap.get(num);
+		io.to(userId).emit('color', r, g, b);
+	});
+
+	socket.on('disconnect', function(){
+		userMap.delete(socket.num);
+		io.to(demoId).emit('disconnect', socket.num);
 	});
 });
 

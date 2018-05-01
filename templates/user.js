@@ -1,49 +1,41 @@
 var socket = io();
-socket.emit('user');
 
-var num = 20;
-var R = [], G = [], B = [];
-var c = [];
-var x = [], y = [];
-var xspeed = []; yspeed = [];
+var num = document.querySelector('meta[name=num]').content;
+socket.emit('join', num);
 
-socket.on('color', function(i, r, g, b){
-	R[i] = r;
-	G[i] = g;
-	B[i] = b;
+var R = 0, G = 0, B = 0;
+var c;
+var x, y, xdest, ydest;
+var xspeed = 0; yspeed = 0;
+
+socket.on('color', function(r, g, b){
+	R = r;
+	G = g;
+	B = b;
 });
 
 function setup() {
 	createCanvas(windowWidth,windowHeight);
-	for (var i = 0; i < num; i++) {
-		socket.emit('join', i);
-		x[i] = Math.random() * windowWidth;
-		y[i] = Math.random() * windowHeight;
-		xspeed[i] = Math.random() + 1;
-		yspeed[i] = Math.random() + 1;
-		R[i] = 0;
-		G[i] = 0;
-		B[i] = 0;
-	}
+	x = Math.random() * windowWidth;
+	y = Math.random() * windowHeight;
+	xdest = x;
+	ydest = y;
 	noStroke();
 }
 
 function draw() {
 	background(0);
-	for (var i = 0; i < num; i++) {
-		// if (R[i] != null &&  G[i] != null & B[i] != null) {
-			c[i] = color(R[i], G[i], B[i]);
-			fill(c[i]);
-			x[i] += xspeed[i];
-			y[i] += yspeed[i];
-			if (x[i] > windowWidth || x[i] < 0) {
-				xspeed[i] *= -1;
-			}
-			if (y[i] > windowHeight || y[i] < 0) {
-				yspeed[i] *= -1;
-			}
-			ellipse(x[i], y[i], 80, 80);
-			socket.emit('move', i, x[i], y[i]);
-		// }
-	}
+	c = color(R, G, B);
+	fill(c);
+	xspeed = (xdest - x)/50;
+	yspeed = (ydest - y)/50;
+	x += xspeed;
+	y += yspeed;
+	ellipse(x, y, 80, 80);
+	socket.emit('move', num, x, y);
+}
+
+function mousePressed() {
+	xdest = mouseX;
+	ydest = mouseY;
 }
